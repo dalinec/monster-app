@@ -1,18 +1,30 @@
-import { useState, useEffect } from "react";
-import CardList from "./components/card-list/card-list.component";
-import SearchBox from "./components/search-box/search-box.component";
+import { useState, useEffect, ChangeEvent } from 'react';
+import CardList from './components/card-list/card-list.component';
+import SearchBox from './components/search-box/search-box.component';
 
-import "./App.css";
+import { getData } from './utils/data.utils';
+import './App.css';
+
+export type Monster = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 const App = () => {
-  const [searchField, setSearchField] = useState(""); //useState() gives us back an array of values [value, setValue]
-  const [monsters, setMonsters] = useState([]);
+  const [searchField, setSearchField] = useState(''); //useState() gives us back an array of values [value, setValue]
+  const [monsters, setMonsters] = useState<Monster[]>([]);
   const [filteredMonsters, setFilteredMonsters] = useState(monsters);
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => response.json())
-      .then((users) => setMonsters(users));
+    const fetchUsers = async () => {
+      const users = await getData<Monster[]>(
+        'https://jsonplaceholder.typicode.com/users'
+      );
+      setMonsters(users);
+    };
+
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -23,19 +35,19 @@ const App = () => {
     setFilteredMonsters(newFilteredMonsters);
   }, [monsters, searchField]);
 
-  const onSearchChange = (event) => {
+  const onSearchChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const searchFieldString = event.target.value.toLocaleLowerCase();
     setSearchField(searchFieldString);
   };
 
   return (
-    <div className="App">
-      <h1 className="app-title">Monsters Rolodex</h1>
+    <div className='App'>
+      <h1 className='app-title'>Monsters Rolodex</h1>
 
       <SearchBox
-        className="monsters-search-box"
+        className='monsters-search-box'
         onChangeHandler={onSearchChange}
-        placeholder="search monsters"
+        placeholder='search monsters'
       />
 
       <CardList monsters={filteredMonsters} />
